@@ -82,7 +82,7 @@
             transform: translate(-50%, -50%);
             text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.8);
             z-index: 10;
-            width: 150px;
+            width: 130px;
         }
 
         .tab-active {
@@ -155,13 +155,13 @@
 
         @media (max-width: 1024px) {
             .bubble-label {
-                width: 130px;
+                width: 112px;
             }
         }
 
         @media (max-width: 768px) {
             .bubble-label {
-                width: 110px;
+                width: 96px;
             }
 
             .data-list-row {
@@ -246,7 +246,7 @@
     </div>
 
     <!-- Physics Simulation Area -->
-    <div id="simulation-container" class="relative w-full h-[78vh] sm:h-[82vh] md:h-[95vh] cursor-grab active:cursor-grabbing"></div>
+    <div id="simulation-container" class="relative w-full h-[80vh] sm:h-[75vh] md:h-[95vh] cursor-grab active:cursor-grabbing"></div>
 
     <!-- Content Sections -->
     <div class="relative z-30 bg-zinc-950 border-t border-zinc-800 p-4 sm:p-6 md:p-10 mb-20">
@@ -493,7 +493,7 @@
         const engine = Engine.create();
         const container = document.getElementById('simulation-container');
         engine.world.gravity.y = 0;
-        const bubbleScale = Math.max(0.72, Math.min(1, container.offsetWidth / 1200));
+        const bubbleScale = Math.max(0.6, Math.min(0.86, container.offsetWidth / 1450));
 
         const render = Render.create({
             element: container, engine: engine,
@@ -526,7 +526,7 @@
         ];
 
         const bubbles = items.map((item, i) => {
-            const radius = Math.max(30, Math.min(200, (Math.log10(item.val + 1) * 72) + 26)) * bubbleScale;
+            const radius = Math.max(24, Math.min(170, (Math.log10(item.val + 1) * 64) + 22)) * bubbleScale;
             const b = Bodies.circle(Math.random() * container.offsetWidth, Math.random() * container.offsetHeight, radius, {
                 restitution: 0.7, frictionAir: 0.04,
                 render: { fillStyle: item.color + '15', strokeStyle: item.color, lineWidth: item.isMain ? 5 : 1 }
