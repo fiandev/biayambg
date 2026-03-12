@@ -65,7 +65,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
 
         body {
-            font-family: 'Plus+Jakarta+Sans', sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: #050505;
             color: white;
             overflow-x: hidden;
@@ -111,6 +111,13 @@
             margin-bottom: 0.75rem;
         }
 
+        .chart-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
         #mini-alert {
             position: fixed;
             bottom: 20px;
@@ -145,6 +152,50 @@
             background: #27272a;
             border-radius: 10px;
         }
+
+        @media (max-width: 1024px) {
+            .bubble-label {
+                width: 130px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .bubble-label {
+                width: 110px;
+            }
+
+            .data-list-row {
+                font-size: 0.78rem;
+                gap: 0.75rem;
+                align-items: flex-start;
+            }
+
+            .data-list-row span:first-child {
+                max-width: 55%;
+            }
+
+            .data-list-row span:last-child {
+                max-width: 45%;
+                text-align: right;
+                overflow-wrap: anywhere;
+            }
+
+            .chart-meta span:first-child {
+                max-width: 65%;
+            }
+
+            .chart-meta span:last-child {
+                text-align: right;
+            }
+
+            #mini-alert {
+                left: 12px;
+                right: 12px;
+                bottom: 12px;
+                width: auto;
+                padding: 10px 12px;
+            }
+        }
     </style>
 </head>
 
@@ -167,27 +218,27 @@
 
     <main>
     <!-- Header UI -->
-    <div class="fixed top-0 left-0 w-full p-6 z-30 bg-gradient-to-b from-black via-black/95 to-transparent">
-        <div class="max-w-7xl mx-auto flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-            <div class="flex items-center gap-4">
+    <div class="static md:fixed top-0 left-0 w-full p-4 sm:p-6 z-30 bg-gradient-to-b from-black via-black/95 to-transparent">
+        <div class="max-w-7xl mx-auto flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+            <div class="flex items-start sm:items-center gap-3 sm:gap-4 flex-wrap">
                 <div id="phase-tag"
-                    class="bg-blue-600 px-3 py-1 rounded text-[10px] font-mono uppercase text-white font-black shadow-lg shadow-blue-900/20">
+                    class="bg-blue-600 px-3 py-1 rounded text-[10px] font-mono uppercase text-white font-black shadow-lg shadow-blue-900/20 shrink-0">
                     Phase 2 Active</div>
                 <div>
-                    <h1 class="text-2xl font-extrabold tracking-tight text-white uppercase italic leading-none">
+                    <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-white uppercase italic leading-none">
                         Monitoring Anggaran MBG Real-time</h1>
                     <p class="text-zinc-500 text-[9px] mt-1 uppercase tracking-widest font-black">Progression: 6 Jan
                         2025 → Current</p>
                 </div>
             </div>
 
-            <div class="flex flex-col md:flex-row gap-4">
+            <div class="flex w-full md:w-auto flex-col md:flex-row gap-4">
                 <div
-                    class="bg-zinc-900/90 backdrop-blur-md border border-zinc-800 p-4 rounded-xl min-w-[320px] shadow-2xl">
+                    class="bg-zinc-900/90 backdrop-blur-md border border-zinc-800 p-3 sm:p-4 rounded-xl w-full md:w-auto md:min-w-[320px] shadow-2xl">
                     <div class="text-[9px] text-zinc-500 uppercase font-black mb-1 tracking-widest text-right">Total
                         Akumulasi Real-Time</div>
                     <div id="total-mbg"
-                        class="text-3xl font-mono font-bold text-blue-400 tabular-nums leading-none tracking-tighter text-right">
+                        class="text-2xl sm:text-3xl font-mono font-bold text-blue-400 tabular-nums leading-none tracking-tighter text-right break-all sm:break-normal">
                         Rp0</div>
                 </div>
             </div>
@@ -195,21 +246,21 @@
     </div>
 
     <!-- Physics Simulation Area -->
-    <div id="simulation-container" class="relative w-full h-[95vh] cursor-grab active:cursor-grabbing"></div>
+    <div id="simulation-container" class="relative w-full h-[78vh] sm:h-[82vh] md:h-[95vh] cursor-grab active:cursor-grabbing"></div>
 
     <!-- Content Sections -->
-    <div class="relative z-30 bg-zinc-950 border-t border-zinc-800 p-6 md:p-10 mb-20">
+    <div class="relative z-30 bg-zinc-950 border-t border-zinc-800 p-4 sm:p-6 md:p-10 mb-20">
         <div class="max-w-5xl mx-auto">
 
-            <div class="flex items-center justify-between mb-8 border-b border-zinc-800">
-                <h2 class="text-xl font-black uppercase tracking-tight text-white pb-4 italic">Skala Realitas Anggaran
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 border-b border-zinc-800">
+                <h2 class="text-xl font-black uppercase tracking-tight text-white pb-0 sm:pb-4 italic">Skala Realitas Anggaran
                 </h2>
-                <div class="flex gap-6 pb-4">
+                <div class="flex gap-4 sm:gap-6 pb-4">
                     <button onclick="switchTab('table')" id="tab-table"
-                        class="text-xs font-bold uppercase tracking-widest tab-active transition-all">Table
+                        class="text-[11px] sm:text-xs font-bold uppercase tracking-widest tab-active transition-all">Table
                         Data</button>
                     <button onclick="switchTab('chart')" id="tab-chart"
-                        class="text-xs font-bold uppercase tracking-widest text-zinc-500 hover:text-white transition-all">Chart
+                        class="text-[11px] sm:text-xs font-bold uppercase tracking-widest text-zinc-500 hover:text-white transition-all">Chart
                         Perbandingan</button>
                 </div>
             </div>
@@ -251,26 +302,26 @@
 
             <!-- View Content: Chart Perbandingan -->
             <div id="view-chart" class="hidden animate-in fade-in duration-500">
-                <div class="grid md:grid-cols-2 gap-8">
+                <div class="grid gap-6 sm:gap-8 md:grid-cols-2">
                     <div>
                         <h3 class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-6 italic">Volume
                             Konsumsi vs Anggaran MBG (Harian)</h3>
                         <div class="chart-row">
-                            <div class="flex justify-between text-xs mb-2 font-bold"><span>Jumlah Indomie
+                            <div class="chart-meta text-xs mb-2 font-bold"><span>Jumlah Indomie
                                     (Rp3.5k)</span><span class="text-blue-400">~262.2 Juta bks</span></div>
                             <div class="w-full bg-zinc-800 h-1.5 rounded-full overflow-hidden">
                                 <div class="bg-blue-500 h-full w-full"></div>
                             </div>
                         </div>
                         <div class="chart-row">
-                            <div class="flex justify-between text-xs mb-2 font-bold"><span>Porsi Nasi Padang Ayam
+                            <div class="chart-meta text-xs mb-2 font-bold"><span>Porsi Nasi Padang Ayam
                                     (Rp25k)</span><span class="text-blue-400">~36.7 Juta porsi</span></div>
                             <div class="w-full bg-zinc-800 h-1.5 rounded-full overflow-hidden">
                                 <div class="bg-blue-400 h-full w-[14%]"></div>
                             </div>
                         </div>
                         <div class="chart-row">
-                            <div class="flex justify-between text-xs mb-2 font-bold"><span>Gaji Guru Honorer
+                            <div class="chart-meta text-xs mb-2 font-bold"><span>Gaji Guru Honorer
                                     (Bulan)</span><span class="text-blue-400">~1.1 Juta orang</span></div>
                             <div class="w-full bg-zinc-800 h-1.5 rounded-full overflow-hidden">
                                 <div class="bg-blue-300 h-full w-[5%]"></div>
@@ -281,21 +332,21 @@
                         <h3 class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-6 italic">Daya
                             Serap Pembangunan (Bulanan)</h3>
                         <div class="chart-row">
-                            <div class="flex justify-between text-xs mb-2 font-bold"><span>Rumah Subsidi Baru
+                            <div class="chart-meta text-xs mb-2 font-bold"><span>Rumah Subsidi Baru
                                     (Rp150jt)</span><span class="text-emerald-400">184.000 Unit</span></div>
                             <div class="w-full bg-zinc-800 h-1.5 rounded-full overflow-hidden">
                                 <div class="bg-emerald-500 h-full w-full"></div>
                             </div>
                         </div>
                         <div class="chart-row">
-                            <div class="flex justify-between text-xs mb-2 font-bold"><span>Puskesmas Lengkap
+                            <div class="chart-meta text-xs mb-2 font-bold"><span>Puskesmas Lengkap
                                     (Rp5M)</span><span class="text-emerald-400">6.000 Unit</span></div>
                             <div class="w-full bg-zinc-800 h-1.5 rounded-full overflow-hidden">
                                 <div class="bg-emerald-400 h-full w-[3.2%]"></div>
                             </div>
                         </div>
                         <div class="chart-row">
-                            <div class="flex justify-between text-xs mb-2 font-bold"><span>Gedung Sekolah Baru
+                            <div class="chart-meta text-xs mb-2 font-bold"><span>Gedung Sekolah Baru
                                     (Rp10M)</span><span class="text-emerald-400">3.000 Unit</span></div>
                             <div class="w-full bg-zinc-800 h-1.5 rounded-full overflow-hidden">
                                 <div class="bg-emerald-300 h-full w-[1.6%]"></div>
@@ -319,18 +370,27 @@
         const engine = Engine.create();
         const container = document.getElementById('simulation-container');
         engine.world.gravity.y = 0;
+        const bubbleScale = Math.max(0.72, Math.min(1, container.offsetWidth / 1200));
 
         const render = Render.create({
             element: container, engine: engine,
             options: { width: container.offsetWidth, height: container.offsetHeight, wireframes: false, background: 'transparent' }
         });
 
-        World.add(engine.world, [
-            Bodies.rectangle(container.offsetWidth / 2, -50, container.offsetWidth, 100, { isStatic: true }),
-            Bodies.rectangle(container.offsetWidth / 2, container.offsetHeight + 50, container.offsetWidth, 100, { isStatic: true }),
-            Bodies.rectangle(-50, container.offsetHeight / 2, 100, container.offsetHeight, { isStatic: true }),
-            Bodies.rectangle(container.offsetWidth + 50, container.offsetHeight / 2, 100, container.offsetHeight, { isStatic: true })
-        ]);
+        let walls = [];
+
+        function buildWalls() {
+            if (walls.length) walls.forEach((wall) => World.remove(engine.world, wall));
+            walls = [
+                Bodies.rectangle(container.offsetWidth / 2, -50, container.offsetWidth, 100, { isStatic: true }),
+                Bodies.rectangle(container.offsetWidth / 2, container.offsetHeight + 50, container.offsetWidth, 100, { isStatic: true }),
+                Bodies.rectangle(-50, container.offsetHeight / 2, 100, container.offsetHeight, { isStatic: true }),
+                Bodies.rectangle(container.offsetWidth + 50, container.offsetHeight / 2, 100, container.offsetHeight, { isStatic: true })
+            ];
+            World.add(engine.world, walls);
+        }
+
+        buildWalls();
 
         const items = [
             { id: 'mbg', name: "MBG PHASE 2", val: 335, color: "#2563eb", isMain: true },
@@ -342,7 +402,7 @@
         ];
 
         const bubbles = items.map((item, i) => {
-            const radius = Math.pow(item.val, 0.45) * 8 + 35;
+            const radius = (Math.pow(item.val, 0.45) * 8 + 35) * bubbleScale;
             const b = Bodies.circle(Math.random() * container.offsetWidth, Math.random() * container.offsetHeight, radius, {
                 restitution: 0.7, frictionAir: 0.04,
                 render: { fillStyle: item.color + '15', strokeStyle: item.color, lineWidth: item.isMain ? 5 : 1 }
@@ -413,6 +473,15 @@
         window.addEventListener('resize', () => {
             render.canvas.width = container.offsetWidth;
             render.canvas.height = container.offsetHeight;
+            render.options.width = container.offsetWidth;
+            render.options.height = container.offsetHeight;
+            buildWalls();
+
+            bubbles.forEach((b) => {
+                const safeX = Math.min(Math.max(b.position.x, b.circleRadius), container.offsetWidth - b.circleRadius);
+                const safeY = Math.min(Math.max(b.position.y, b.circleRadius), container.offsetHeight - b.circleRadius);
+                Matter.Body.setPosition(b, { x: safeX, y: safeY });
+            });
         });
     </script>
 </body>
