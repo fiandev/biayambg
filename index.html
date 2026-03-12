@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Monitoring anggaran MBG real-time untuk Phase 1 dan Phase 2 dengan visualisasi interaktif, laju anggaran, dan perbandingan dampak kebijakan.">
+    <meta name="keywords"
+        content="MBG, monitoring anggaran, anggaran real-time, APBN, visualisasi data, kebijakan publik, fiandev">
+    <meta name="author" content="fiandev">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#050505">
+    <meta name="language" content="id">
+
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="id_ID">
+    <meta property="og:site_name" content="fiandev">
+    <meta property="og:title" content="Monitoring Anggaran MBG Real-time">
+    <meta property="og:description"
+        content="Pantau estimasi anggaran MBG secara real-time melalui simulasi interaktif dan perbandingan skala kebijakan.">
+    <meta property="og:url" content="https://biayambg.netlify.app/">
+    <meta property="og:image" content="https://fiandev.com/favicon-96x96.png">
+    <meta property="og:image:alt" content="Monitoring Anggaran MBG oleh fiandev">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Monitoring Anggaran MBG Real-time">
+    <meta name="twitter:description"
+        content="Visualisasi real-time estimasi anggaran MBG untuk memahami skala belanja dan dampaknya.">
+    <meta name="twitter:image" content="https://fiandev.com/favicon-96x96.png">
+    <meta name="twitter:creator" content="@fiandev">
+
+    <link rel="canonical" href="https://biayambg.netlify.app/">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <title>Monitoring Anggaran MBG Real-time 2026 | fiandev</title>
+    <link rel="icon" type="image/png" href="https://fiandev.com/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="https://fiandev.com/favicon.svg" />
+    <link rel="shortcut icon" href="https://fiandev.com/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="https://fiandev.com/apple-touch-icon.png" />
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            "name": "Monitoring Anggaran MBG Real-time",
+            "description": "Monitoring anggaran MBG real-time untuk Phase 1 dan Phase 2 dengan visualisasi interaktif, laju anggaran, dan perbandingan dampak kebijakan.",
+            "url": "https://biayambg.netlify.app/",
+            "inLanguage": "id-ID",
+            "author": {
+                "@type": "Person",
+                "name": "fiandev",
+                "url": "https://fiandev.com/"
+            },
+            "publisher": {
+                "@type": "Organization",
+                "name": "fiandev",
+                "url": "https://fiandev.com/"
+            }
+        }
+    </script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+
+        body {
+            font-family: 'Plus+Jakarta+Sans', sans-serif;
+            background-color: #050505;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        .bubble-label {
+            pointer-events: none;
+            position: absolute;
+            text-align: center;
+            transform: translate(-50%, -50%);
+            text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.8);
+            z-index: 10;
+            width: 150px;
+        }
+
+        .tab-active {
+            border-bottom: 2px solid #3b82f6;
+            color: #3b82f6;
+        }
+
+        .data-list-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #1f1f22;
+            font-family: monospace;
+            font-size: 0.85rem;
+        }
+
+        .data-list-row:last-child {
+            border-bottom: none;
+        }
+
+        .chart-row {
+            background: rgba(20, 20, 20, 0.4);
+            border: 1px solid #1f1f22;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        #mini-alert {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+            background: #450a0a;
+            border-left: 3px solid #ef4444;
+            padding: 12px 20px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transform: translateY(150%);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            pointer-events: none;
+        }
+
+        #mini-alert.show {
+            transform: translateY(0);
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #050505;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #27272a;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body class="relative min-h-screen">
+
+    <div id="mini-alert">
+        <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+        <div>
+            <div class="text-[9px] font-black text-red-400 uppercase tracking-widest">Sonar Detection</div>
+            <div class="text-[11px] text-zinc-200 font-bold leading-tight">Kebocoran anggaran terdeteksi.</div>
+        </div>
+    </div>
+
+    <noscript>
+        <section class="max-w-4xl mx-auto px-6 py-6 text-sm text-zinc-300">
+            Monitoring Anggaran MBG real-time menampilkan estimasi laju anggaran Phase 1 dan Phase 2, alokasi per dapur,
+            serta perbandingan skala dampak kebijakan publik.
+        </section>
+    </noscript>
+
+    <main>
+    <!-- Header UI -->
+    <div class="fixed top-0 left-0 w-full p-6 z-30 bg-gradient-to-b from-black via-black/95 to-transparent">
+        <div class="max-w-7xl mx-auto flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <div id="phase-tag"
+                    class="bg-blue-600 px-3 py-1 rounded text-[10px] font-mono uppercase text-white font-black shadow-lg shadow-blue-900/20">
+                    Phase 2 Active</div>
+                <div>
+                    <h1 class="text-2xl font-extrabold tracking-tight text-white uppercase italic leading-none">
+                        Monitoring Anggaran MBG Real-time</h1>
+                    <p class="text-zinc-500 text-[9px] mt-1 uppercase tracking-widest font-black">Progression: 6 Jan
+                        2025 → Current</p>
+                </div>
+            </div>
+
+            <div class="flex flex-col md:flex-row gap-4">
+                <div
+                    class="bg-zinc-900/90 backdrop-blur-md border border-zinc-800 p-4 rounded-xl min-w-[320px] shadow-2xl">
+                    <div class="text-[9px] text-zinc-500 uppercase font-black mb-1 tracking-widest text-right">Total
+                        Akumulasi Real-Time</div>
+                    <div id="total-mbg"
+                        class="text-3xl font-mono font-bold text-blue-400 tabular-nums leading-none tracking-tighter text-right">
+                        Rp0</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Physics Simulation Area -->
+    <div id="simulation-container" class="relative w-full h-[95vh] cursor-grab active:cursor-grabbing"></div>
+
+    <!-- Content Sections -->
+    <div class="relative z-30 bg-zinc-950 border-t border-zinc-800 p-6 md:p-10 mb-20">
+        <div class="max-w-5xl mx-auto">
+
+            <div class="flex items-center justify-between mb-8 border-b border-zinc-800">
+                <h2 class="text-xl font-black uppercase tracking-tight text-white pb-4 italic">Skala Realitas Anggaran
+                </h2>
+                <div class="flex gap-6 pb-4">
+                    <button onclick="switchTab('table')" id="tab-table"
+                        class="text-xs font-bold uppercase tracking-widest tab-active transition-all">Table
+                        Data</button>
+                    <button onclick="switchTab('chart')" id="tab-chart"
+                        class="text-xs font-bold uppercase tracking-widest text-zinc-500 hover:text-white transition-all">Chart
+                        Perbandingan</button>
+                </div>
+            </div>
+
+            <!-- View Content: Table Data (Sistem List Biasa) -->
+            <div id="view-table" class="block animate-in fade-in duration-500">
+                <div class="space-y-10">
+                    <!-- Section 1 -->
+                    <div>
+                        <h3
+                            class="text-blue-500 font-black text-[11px] uppercase mb-4 tracking-widest border-b border-blue-500/30 pb-2">
+                            Laju Anggaran Fase 2 (Rp335T/Thn)</h3>
+                        <div class="data-list-row"><span>Per Detik</span><span class="text-white">Rp 10.622.780</span>
+                        </div>
+                        <div class="data-list-row"><span>Per Menit</span><span class="text-white">Rp 637.366.818</span>
+                        </div>
+                        <div class="data-list-row"><span>Per Jam</span><span class="text-white">Rp 38.242.009.132</span>
+                        </div>
+                        <div class="data-list-row"><span>Per Hari</span><span class="text-blue-400 font-bold">Rp
+                                917.808.219.178</span></div>
+                    </div>
+
+                    <!-- Section 2 -->
+                    <div>
+                        <h3
+                            class="text-emerald-500 font-black text-[11px] uppercase mb-4 tracking-widest border-b border-emerald-500/30 pb-2">
+                            Alokasi per Dapur (35k Node)</h3>
+                        <div class="data-list-row"><span>Per Detik</span><span class="text-white">Rp 303</span></div>
+                        <div class="data-list-row"><span>Per Hari</span><span class="text-white">Rp 26.223.091</span>
+                        </div>
+                        <div class="data-list-row"><span>Per Bulan</span><span class="text-white">Rp 797.600.000</span>
+                        </div>
+                        <div class="data-list-row"><span>Per Tahun</span><span class="text-emerald-400 font-bold">Rp
+                                9.600.000.000</span></div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- View Content: Chart Perbandingan -->
+            <div id="view-chart" class="hidden animate-in fade-in duration-500">
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-6 italic">Volume
+                            Konsumsi vs Anggaran MBG (Harian)</h3>
+                        <div class="chart-row">
+                            <div class="flex justify-between text-xs mb-2 font-bold"><span>Jumlah Indomie
+                                    (Rp3.5k)</span><span class="text-blue-400">~262.2 Juta bks</span></div>
+                            <div class="w-full bg-zinc-800 h-1.5 rounded-full overflow-hidden">
+                                <div class="bg-blue-500 h-full w-full"></div>
+                            </div>
+                        </div>
+                        <div class="chart-row">
+                            <div class="flex justify-between text-xs mb-2 font-bold"><span>Porsi Nasi Padang Ayam
+                                    (Rp25k)</span><span class="text-blue-400">~36.7 Juta porsi</span></div>
+                            <div class="w-full bg-zinc-800 h-1.5 rounded-full overflow-hidden">
+                                <div class="bg-blue-400 h-full w-[14%]"></div>
+                            </div>
+                        </div>
+                        <div class="chart-row">
+                            <div class="flex justify-between text-xs mb-2 font-bold"><span>Gaji Guru Honorer
+                                    (Bulan)</span><span class="text-blue-400">~1.1 Juta orang</span></div>
+                            <div class="w-full bg-zinc-800 h-1.5 rounded-full overflow-hidden">
+                                <div class="bg-blue-300 h-full w-[5%]"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-6 italic">Daya
+                            Serap Pembangunan (Bulanan)</h3>
+                        <div class="chart-row">
+                            <div class="flex justify-between text-xs mb-2 font-bold"><span>Rumah Subsidi Baru
+                                    (Rp150jt)</span><span class="text-emerald-400">184.000 Unit</span></div>
+                            <div class="w-full bg-zinc-800 h-1.5 rounded-full overflow-hidden">
+                                <div class="bg-emerald-500 h-full w-full"></div>
+                            </div>
+                        </div>
+                        <div class="chart-row">
+                            <div class="flex justify-between text-xs mb-2 font-bold"><span>Puskesmas Lengkap
+                                    (Rp5M)</span><span class="text-emerald-400">6.000 Unit</span></div>
+                            <div class="w-full bg-zinc-800 h-1.5 rounded-full overflow-hidden">
+                                <div class="bg-emerald-400 h-full w-[3.2%]"></div>
+                            </div>
+                        </div>
+                        <div class="chart-row">
+                            <div class="flex justify-between text-xs mb-2 font-bold"><span>Gedung Sekolah Baru
+                                    (Rp10M)</span><span class="text-emerald-400">3.000 Unit</span></div>
+                            <div class="w-full bg-zinc-800 h-1.5 rounded-full overflow-hidden">
+                                <div class="bg-emerald-300 h-full w-[1.6%]"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    </main>
+
+    <script>
+        const PHASE_2_START = new Date('2026-01-01T00:00:00+07:00');
+        const PHASE_1_TOTAL = 52.9e12;
+        const PHASE_2_ANNUAL = 335e12;
+        const PHASE_2_BPS = PHASE_2_ANNUAL / (365 * 86400);
+
+        const { Engine, Render, Runner, World, Bodies, Mouse, MouseConstraint } = Matter;
+        const engine = Engine.create();
+        const container = document.getElementById('simulation-container');
+        engine.world.gravity.y = 0;
+
+        const render = Render.create({
+            element: container, engine: engine,
+            options: { width: container.offsetWidth, height: container.offsetHeight, wireframes: false, background: 'transparent' }
+        });
+
+        World.add(engine.world, [
+            Bodies.rectangle(container.offsetWidth / 2, -50, container.offsetWidth, 100, { isStatic: true }),
+            Bodies.rectangle(container.offsetWidth / 2, container.offsetHeight + 50, container.offsetWidth, 100, { isStatic: true }),
+            Bodies.rectangle(-50, container.offsetHeight / 2, 100, container.offsetHeight, { isStatic: true }),
+            Bodies.rectangle(container.offsetWidth + 50, container.offsetHeight / 2, 100, container.offsetHeight, { isStatic: true })
+        ]);
+
+        const items = [
+            { id: 'mbg', name: "MBG PHASE 2", val: 335, color: "#2563eb", isMain: true },
+            { id: 'edu', name: "Pendidikan", val: 660, color: "#ec4899" },
+            { id: 'soc', name: "Perlind. Sosial", val: 496, color: "#ef4444" },
+            { id: 'infra', name: "Infrastruktur", val: 422, color: "#8b5cf6" },
+            { id: 'heal', name: "Kesehatan", val: 187, color: "#06b6d4" },
+            { id: 'ikn', name: "IKN", val: 40, color: "#10b981" }
+        ];
+
+        const bubbles = items.map((item, i) => {
+            const radius = Math.pow(item.val, 0.45) * 8 + 35;
+            const b = Bodies.circle(Math.random() * container.offsetWidth, Math.random() * container.offsetHeight, radius, {
+                restitution: 0.7, frictionAir: 0.04,
+                render: { fillStyle: item.color + '15', strokeStyle: item.color, lineWidth: item.isMain ? 5 : 1 }
+            });
+            b.customData = item;
+            const label = document.createElement('div');
+            label.className = 'bubble-label';
+            label.id = `label-${i}`;
+            label.innerHTML = `<div class="text-[9px] font-bold text-zinc-500 uppercase">${item.name}</div><div class="val font-black text-xs">Rp0</div>`;
+            container.appendChild(label);
+            return b;
+        });
+
+        World.add(engine.world, bubbles);
+        const mouseConstraint = MouseConstraint.create(engine, { mouse: Mouse.create(render.canvas), constraint: { stiffness: 0.2, render: { visible: false } } });
+        World.add(engine.world, mouseConstraint);
+
+        function formatRp(v) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(v);
+        }
+
+        function switchTab(t) {
+            document.getElementById('tab-table').classList.toggle('tab-active', t === 'table');
+            document.getElementById('tab-chart').classList.toggle('tab-active', t === 'chart');
+            document.getElementById('tab-table').classList.toggle('text-zinc-500', t !== 'table');
+            document.getElementById('tab-chart').classList.toggle('text-zinc-500', t !== 'chart');
+
+            if (t === 'table') {
+                document.getElementById('view-table').style.display = 'block';
+                document.getElementById('view-chart').style.display = 'none';
+            } else {
+                document.getElementById('view-table').style.display = 'none';
+                document.getElementById('view-chart').style.display = 'block';
+            }
+        }
+
+        function triggerMiniAlert() {
+            const alert = document.getElementById('mini-alert');
+            alert.classList.add('show');
+            setTimeout(() => alert.classList.remove('show'), 3000);
+        }
+        setInterval(triggerMiniAlert, 25000);
+
+        function update() {
+            const now = new Date();
+            const total = PHASE_1_TOTAL + (((now - PHASE_2_START) / 1000) * PHASE_2_BPS);
+
+            document.getElementById('total-mbg').innerText = formatRp(total);
+
+            bubbles.forEach((b, i) => {
+                const label = document.getElementById(`label-${i}`);
+                const data = b.customData;
+                let displayValue = data.isMain ? total : data.val * 1e12;
+                label.querySelector('.val').innerText = data.isMain ? formatRp(displayValue) : "Rp " + data.val + " T";
+                label.style.left = b.position.x + 'px';
+                label.style.top = b.position.y + 'px';
+                Matter.Body.applyForce(b, b.position, {
+                    x: (container.offsetWidth / 2 - b.position.x) * 0.000005 * b.mass,
+                    y: (container.offsetHeight / 2 - b.position.y) * 0.000005 * b.mass
+                });
+            });
+        }
+
+        Runner.run(engine);
+        Render.run(render);
+        setInterval(update, 50);
+
+        window.addEventListener('resize', () => {
+            render.canvas.width = container.offsetWidth;
+            render.canvas.height = container.offsetHeight;
+        });
+    </script>
+</body>
+
+</html>
